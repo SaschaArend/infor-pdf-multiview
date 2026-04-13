@@ -1,14 +1,16 @@
 {
   "manifest_version": 3,
   "name": "INFOR - PDF Multiview",
-  "version": "2025.11.0",
+  "version": "2026.04.0",
   "description": "PDF Multiview for INFOR Invoice Process",
   "permissions": [
     "webRequest",
-    "tabs"
+    "tabs",
+    "storage"
   ],
   "host_permissions": [
-    "*://*.inforcloudsuite.com/*"
+    "*://*.inforcloudsuite.com/*",
+    "https://raw.githubusercontent.com/SaschaArend/infor-pdf-multiview/main/manifest.json"
   ],
   "icons": {
     "16": "icons/16.png",

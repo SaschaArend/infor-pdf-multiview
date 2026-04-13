@@ -25,7 +25,73 @@ chrome.runtime.onMessage.addListener((request) => {
     if (request.action === "showOverlay" && request.pdfUrl) {
         showPdfOverlay(request.pdfUrl);
     }
+    if (request.type === "UPDATE_AVAILABLE") {
+        showUpdateBanner(request.version);
+    }
 });
+
+// Prüfe beim Laden der Seite, ob im Hintergrund bereits ein Update gefunden wurde
+chrome.storage.local.get(['updateAvailable', 'version'], (result) => {
+    if (result.updateAvailable) {
+        showUpdateBanner(result.version);
+    }
+});
+
+function showUpdateBanner(version) {
+    if (document.getElementById('infor-update-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'infor-update-banner';
+    banner.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+        color: white;
+        padding: 12px 24px;
+        z-index: 100000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: slideDown 0.5s ease-out;
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    `;
+    document.head.appendChild(style);
+
+    banner.innerHTML = `
+        <div style="font-weight: 600; margin-right: 15px; display: flex; align-items: center;">
+            <span style="font-size: 20px; margin-right: 8px;">🚀</span>
+            Neue Version verfügbar: <strong>${version}</strong>
+        </div>
+        <div style="font-size: 14px; color: #dbeafe;">
+            Bitte führe die <strong>update.bat</strong> in deinem Installationsordner aus.
+        </div>
+        <button id="close-update-banner" style="
+            margin-left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        ">×</button>
+    `;
+
+    document.body.appendChild(banner);
+
+    document.getElementById('close-update-banner').addEventListener('click', () => {
+        banner.remove();
+    });
+}
 
 function showPdfOverlay(pdfUrl) {
     const lnTabActive = document.querySelector('portal-tab-item[aria-label="LN"][aria-selected="true"]');
