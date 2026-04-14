@@ -38,6 +38,9 @@ chrome.storage.local.get(['updateAvailable', 'version'], (result) => {
 });
 
 function showUpdateBanner(version) {
+    // Nur im Top-Window anzeigen, um doppelte Banner in iFrames zu vermeiden
+    if (window !== window.top) return;
+
     if (document.getElementById('infor-update-banner')) return;
 
     const banner = document.createElement('div');
@@ -47,16 +50,19 @@ function showUpdateBanner(version) {
         top: 0;
         left: 0;
         width: 100%;
-        background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-        color: white;
-        padding: 12px 24px;
+        background-color: #ffffff;
+        color: #333333;
+        padding: 10px 24px;
         z-index: 100000;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        animation: slideDown 0.5s ease-out;
+        font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        border-bottom: 1px solid #d4d4d4;
+        animation: slideDown 0.3s ease-out;
+        box-sizing: border-box;
     `;
 
     const style = document.createElement('style');
@@ -66,24 +72,26 @@ function showUpdateBanner(version) {
     document.head.appendChild(style);
 
     banner.innerHTML = `
-        <div style="font-weight: 600; margin-right: 15px; display: flex; align-items: center;">
-            <span style="font-size: 20px; margin-right: 8px;">🚀</span>
-            Neue Version verfügbar: <strong>${version}</strong>
-        </div>
-        <div style="font-size: 14px; color: #dbeafe;">
-            Bitte führe die <strong>update.bat</strong> in deinem Installationsordner aus.
+        <div style="display: flex; align-items: center; justify-content: center; flex-grow: 1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#005B9F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Update Information:</span>
+            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Bitte führe die <strong>update.bat</strong> in deinem Installationsordner aus.</span>
         </div>
         <button id="close-update-banner" style="
-            margin-left: 20px;
-            background: rgba(255,255,255,0.2);
+            background: transparent;
             border: none;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 4px;
+            color: #666666;
             cursor: pointer;
-            font-size: 16px;
-            transition: background 0.2s;
-        ">×</button>
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 8px;
+            line-height: 1;
+            transition: color 0.2s;
+        " onmouseover="this.style.color='#000'" onmouseout="this.style.color='#666'">×</button>
     `;
 
     document.body.appendChild(banner);
