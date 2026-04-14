@@ -15,18 +15,34 @@ window.addEventListener('message', function (event) {
     // an top.window geschickt wird und wir im Top-Window sitzen!
     if (event.data && event.data.type === 'INFOR_MULTIVIEW_PDF_URL') {
         console.log("Infor Multiview: Message erhalten mit URL:", event.data.url);
-        // Wir zeichnen das Overlay nur im Top-Window auf, da dieses den "LN" Tab (die Shell) besitzt.
-        showPdfOverlay(event.data.url);
+        chrome.storage.local.get(['isEnabled'], (result) => {
+            if (result.isEnabled !== false) {
+                // Wir zeichnen das Overlay nur im Top-Window auf, da dieses den "LN" Tab (die Shell) besitzt.
+                showPdfOverlay(event.data.url);
+            } else {
+                console.log("Infor Multiview: Extension ist ausgeschaltet, PDF-Overlay wird nicht angezeigt.");
+            }
+        });
     }
 });
 
 // Listener beibehalten, falls wir es in Zukunft noch brauchen
 chrome.runtime.onMessage.addListener((request) => {
     if (request.action === "showOverlay" && request.pdfUrl) {
-        showPdfOverlay(request.pdfUrl);
+        chrome.storage.local.get(['isEnabled'], (result) => {
+            if (result.isEnabled !== false) {
+                showPdfOverlay(request.pdfUrl);
+            }
+        });
     }
     if (request.type === "UPDATE_AVAILABLE") {
         showUpdateBanner(request.version);
+    }
+    if (request.type === "CLOSE_OVERLAY") {
+        const container = document.getElementById('pdf-container');
+        if (container) {
+            container.remove();
+        }
     }
 });
 
