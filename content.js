@@ -79,7 +79,21 @@ function showUpdateBanner(version) {
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
             <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Update Information:</span>
-            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Bitte führe die <strong>update.bat</strong> in deinem Installationsordner aus.</span>
+            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Öffne den Update-Ordner, um dort die <strong>update.bat</strong> auszuführen.</span>
+            <button id="open-update-folder-btn" style="
+                margin-left: 15px;
+                padding: 4px 12px;
+                background-color: #005B9F;
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 12px;
+                transition: background-color 0.2s;
+            " onmouseover="this.style.backgroundColor='#004375'" onmouseout="this.style.backgroundColor='#005B9F'">
+                Update-Ordner öffnen
+            </button>
         </div>
         <button id="close-update-banner" style="
             background: transparent;
@@ -97,6 +111,11 @@ function showUpdateBanner(version) {
     document.body.appendChild(banner);
 
     document.getElementById('close-update-banner').addEventListener('click', () => {
+        banner.remove();
+    });
+
+    document.getElementById('open-update-folder-btn').addEventListener('click', () => {
+        chrome.runtime.sendMessage({ action: "openExtensionsPage" });
         banner.remove();
     });
 }

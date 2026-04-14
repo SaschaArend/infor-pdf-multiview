@@ -55,3 +55,11 @@ function isNewerVersion(local, remote) {
   }
   return false;
 }
+
+// Empfange Nachrichten von content.js
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "openExtensionsPage") {
+    // Öffnet die Detailseite der eigenen Extension, funktioniert in Edge (wird automatisiert umgeleitet) und Chrome
+    chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
+  }
+});
