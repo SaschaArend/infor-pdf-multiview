@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-color 0A
+color 0F
 echo ===============================================================
 echo INFOR PDF Multiview - Automatisches Update (GitHub)
 echo ===============================================================

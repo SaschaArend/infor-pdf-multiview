@@ -1,6 +1,35 @@
 (function () {
     console.log("Infor Multiview: XHR Intercept script geladen auf " + window.location.href);
 
+    const SUPPORTED_MIMETYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'message/rfc822',
+        'application/vnd.ms-outlook',
+        'image/png',
+        'image/jpeg',
+        'image/gif',
+        'image/webp',
+        'image/svg+xml'
+    ];
+
+    function findFileResource(items) {
+        if (items && items.item && Array.isArray(items.item) && items.item.length > 0) {
+            for (const item of items.item) {
+                if (item.resrs && Array.isArray(item.resrs.res)) {
+                    const res = item.resrs.res.find(r => SUPPORTED_MIMETYPES.includes(r.mimetype));
+                    if (res && res.url) {
+                        return { url: res.url, mimetype: res.mimetype };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     const origOpen = XMLHttpRequest.prototype.open;
     const origSend = XMLHttpRequest.prototype.send;
 
@@ -14,25 +43,16 @@
             if (this._inforUrl && typeof this._inforUrl === 'string' && this._inforUrl.includes('search')) {
                 try {
                     const response = JSON.parse(this.responseText);
-                    let foundUrl = false;
-                    if (response && response.items && Array.isArray(response.items.item) && response.items.item.length > 0) {
-                        for (const item of response.items.item) {
-                            if (item.resrs && Array.isArray(item.resrs.res)) {
-                                const pdfRes = item.resrs.res.find(r => r.mimetype === 'application/pdf');
-                                if (pdfRes && pdfRes.url) {
-                                    console.log("Infor Multiview: PDF URL aus search-Response extrahiert!", pdfRes.url);
-                                    window.top.postMessage({
-                                        type: 'INFOR_MULTIVIEW_PDF_URL',
-                                        url: pdfRes.url
-                                    }, '*');
-                                    foundUrl = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!foundUrl) {
-                        console.log("Infor Multiview: search Request enthielt keine gültige PDF URL in resrs.res");
+                    const resource = findFileResource(response.items);
+                    if (resource) {
+                        console.log("Infor Multiview: Datei URL aus search-Response extrahiert!", resource.url);
+                        window.top.postMessage({
+                            type: 'INFOR_MULTIVIEW_PDF_URL',
+                            url: resource.url,
+                            mimetype: resource.mimetype
+                        }, '*');
+                    } else {
+                        console.log("Infor Multiview: search Request enthielt keine gültige Datei URL in resrs.res");
                     }
                 } catch (e) {
                     // Ignorieren falls kein valides JSON
@@ -48,20 +68,14 @@
         const url = args[0] instanceof Request ? args[0].url : args[0];
         if (url && typeof url === 'string' && url.includes('search')) {
             response.clone().json().then(data => {
-                if (data && data.items && Array.isArray(data.items.item) && data.items.item.length > 0) {
-                    for (const item of data.items.item) {
-                        if (item.resrs && Array.isArray(item.resrs.res)) {
-                            const pdfRes = item.resrs.res.find(r => r.mimetype === 'application/pdf');
-                            if (pdfRes && pdfRes.url) {
-                                console.log("Infor Multiview (Fetch): PDF URL aus search-Response extrahiert!", pdfRes.url);
-                                window.top.postMessage({
-                                    type: 'INFOR_MULTIVIEW_PDF_URL',
-                                    url: pdfRes.url
-                                }, '*');
-                                return;
-                            }
-                        }
-                    }
+                const resource = findFileResource(data.items);
+                if (resource) {
+                    console.log("Infor Multiview (Fetch): Datei URL aus search-Response extrahiert!", resource.url);
+                    window.top.postMessage({
+                        type: 'INFOR_MULTIVIEW_PDF_URL',
+                        url: resource.url,
+                        mimetype: resource.mimetype
+                    }, '*');
                 }
             }).catch(e => { });
         }

@@ -69,6 +69,56 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Öffnet die Detailseite der eigenen Extension, funktioniert in Edge (wird automatisiert umgeleitet) und Chrome
     chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
   }
+
+  if (request.action === "fetchText" && request.url) {
+    fetch(request.url)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.text();
+      })
+      .then(text => sendResponse({ success: true, text: text }))
+      .catch(error => {
+        console.error("Background fetch error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true; // Hält den Nachrichtenkanal für asynchrone Antwort offen
+  }
+
+  if (request.action === "fetchArrayBuffer" && request.url) {
+    fetch(request.url)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => {
+        // Da ArrayBuffer nicht direkt serialisiert werden kann über sendMessage, 
+        // konvertieren wir es in ein Uint8Array und dann in ein normales Array
+        const uint8Array = new Uint8Array(buffer);
+        const bytes = Array.from(uint8Array);
+        sendResponse({ success: true, bytes: bytes });
+      })
+      .catch(error => {
+        console.error("Background fetch arraybuffer error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.action === "downloadFile" && request.url) {
+    console.log("Infor Multiview: Starte Download via Background:", request.url);
+    chrome.downloads.download({
+      url: request.url
+    }, (downloadId) => {
+      if (chrome.runtime.lastError) {
+        console.error("Infor Multiview: Download fehlgeschlagen:", chrome.runtime.lastError.message);
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
+      } else {
+        console.log("Infor Multiview: Download erfolgreich gestartet, ID:", downloadId);
+        sendResponse({ success: true, downloadId: downloadId });
+      }
+    });
+    return true;
+  }
 });
 
 // Initialer Badge Status

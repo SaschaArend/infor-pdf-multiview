@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "INFOR - PDF Multiview",
-  "version": "2026.04.2",
+  "version": "2026.05.1",
   "description": "PDF Multiview for INFOR Invoice Process",
   "permissions": [
     "webRequest",
     "tabs",
-    "storage"
+    "storage",
+    "downloads"
   ],
   "host_permissions": [
     "*://*.inforcloudsuite.com/*",
@@ -32,6 +33,8 @@
         "*://*.inforcloudsuite.com/*"
       ],
       "js": [
+        "lib/DataStream.js",
+        "lib/msgreader.js",
         "content.js"
       ],
       "all_frames": true
