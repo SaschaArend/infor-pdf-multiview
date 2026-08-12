@@ -21,7 +21,7 @@ Vollständig kompatibel mit Infor v1 Widgets (Suche) und den neuen **Infor v2 Wi
 - **Drag & Drop Resize**: Die Breite des Overlays kann per Maus frei angepasst werden. Die gewählte Breite wird automatisch gespeichert.
 - **Ein/Aus-Schalter**: Ein Klick auf das Erweiterungs-Icon aktiviert oder deaktiviert die Vorschau (`OFF`-Badge erscheint wenn inaktiv).
 - **Update-Benachrichtigung**: Die Erweiterung prüft beim Start automatisch auf neue Versionen und zeigt einen Banner an.
-- **Infor v2 Kompatibilität**: Umgeht strengste Content-Security-Policies (CSP) und CORS-Sperren durch natives `MAIN`-World Scripting und Background-Worker Downloads.
+- **Infor v2 Kompatibilität**: Vollständig kompatibel mit den neuen Infor Sicherheitsrichtlinien (CSP & CORS) durch natives `MAIN`-World Scripting und sichere Background-Worker Downloads.
 
 ---
 
