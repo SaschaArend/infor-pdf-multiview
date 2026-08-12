@@ -1,6 +1,7 @@
 # INFOR – PDF Multiview Extension
 
 Eine Browser-Erweiterung (Chrome/Edge) für **Infor LN** (CloudSuite), die Dokumente aus dem IDM (Infor Document Management) direkt als Overlay im Browser anzeigt – ohne den Hauptarbeitsbereich zu verlassen.
+Vollständig kompatibel mit Infor v1 Widgets (Suche) und den neuen **Infor v2 Widgets** (Verbundene Informationen / SmallPreview).
 
 ---
 
@@ -20,7 +21,7 @@ Eine Browser-Erweiterung (Chrome/Edge) für **Infor LN** (CloudSuite), die Dokum
 - **Drag & Drop Resize**: Die Breite des Overlays kann per Maus frei angepasst werden. Die gewählte Breite wird automatisch gespeichert.
 - **Ein/Aus-Schalter**: Ein Klick auf das Erweiterungs-Icon aktiviert oder deaktiviert die Vorschau (`OFF`-Badge erscheint wenn inaktiv).
 - **Update-Benachrichtigung**: Die Erweiterung prüft beim Start automatisch auf neue Versionen und zeigt einen Banner an.
-- **Automatisches Schließen**: Das Overlay schließt sich, wenn der LN-Tab in Infor deaktiviert wird.
+- **Infor v2 Kompatibilität**: Umgeht strengste Content-Security-Policies (CSP) und CORS-Sperren durch natives `MAIN`-World Scripting und Background-Worker Downloads.
 
 ---
 

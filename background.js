@@ -91,14 +91,39 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return response.arrayBuffer();
       })
       .then(buffer => {
-        // Da ArrayBuffer nicht direkt serialisiert werden kann über sendMessage, 
-        // konvertieren wir es in ein Uint8Array und dann in ein normales Array
         const uint8Array = new Uint8Array(buffer);
         const bytes = Array.from(uint8Array);
         sendResponse({ success: true, bytes: bytes });
       })
       .catch(error => {
         console.error("Background fetch arraybuffer error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.action === "fetchBase64" && request.url) {
+    const fetchOpts = { credentials: 'include' };
+    if (request.auth) fetchOpts.headers = { 'Authorization': request.auth };
+
+    fetch(request.url, fetchOpts)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => {
+        // ArrayBuffer zu Base64 konvertieren im Service Worker
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        sendResponse({ success: true, base64: base64 });
+      })
+      .catch(error => {
+        console.error("Background fetch base64 error:", error);
         sendResponse({ success: false, error: error.message });
       });
     return true;

@@ -1,13 +1,5 @@
-// --- Injection von intercept.js ---
+// --- Injection von intercept.js geschieht nun nativ durch Chrome via manifest.json (world: MAIN) ---
 console.log("Infor Multiview: content.js gestartet in Frame " + window.location.href);
-
-const s = document.createElement('script');
-s.src = chrome.runtime.getURL('intercept.js');
-s.onload = function () {
-    console.log("Infor Multiview: intercept.js erfolgreich in DOM injiziert.");
-    this.remove();
-};
-(document.head || document.documentElement).appendChild(s);
 
 // --- Event Listener für Nachrichten aus dem Seitenkontext ---
 window.addEventListener('message', function (event) {
@@ -17,8 +9,8 @@ window.addEventListener('message', function (event) {
         console.log("Infor Multiview: Message erhalten mit URL:", event.data.url, "Mimetype:", event.data.mimetype);
         chrome.storage.local.get(['isEnabled'], (result) => {
             if (result.isEnabled !== false) {
-                // Wir zeichnen das Overlay nur im Top-Window auf, da dieses den "LN" Tab (die Shell) besitzt.
-                showFileOverlay(event.data.url, event.data.mimetype);
+                // Wir zeichnen das Overlay nur im Top-Window auf
+                showFileOverlay(event.data.url, event.data.mimetype, event.data.auth);
             } else {
                 console.log("Infor Multiview: Extension ist ausgeschaltet, Datei-Overlay wird nicht angezeigt.");
             }
@@ -136,10 +128,16 @@ function showUpdateBanner(version) {
     });
 }
 
-function showFileOverlay(fileUrl, mimetype) {
-    const lnTabActive = document.querySelector('portal-tab-item[aria-label="LN"][aria-selected="true"]');
-    if (!lnTabActive) {
-        console.log("Infor Multiview: Overlay abgebrochen, da 'portal-tab-item[aria-label=\"LN\"]' nicht aktiv oder nicht gefunden wurde. Dies ist normal in Unter-iFrames.");
+function showFileOverlay(fileUrl, mimetype, authHeader = null) {
+    // Stellen sicher, dass wir nur im Top-Window zeichnen
+    if (window !== window.top) {
+        return;
+    }
+
+    // Prüfen, ob wir im LN-Tab sind
+    const lnTab = document.querySelector('portal-tab-item[aria-label="LN"]');
+    if (lnTab && lnTab.getAttribute('aria-selected') !== 'true') {
+        console.log("Infor Multiview: Overlay abgebrochen, da LN-Tab nicht aktiv ist.");
         return;
     }
 
@@ -155,7 +153,7 @@ function showFileOverlay(fileUrl, mimetype) {
         const contentArea = container.querySelector('#overlay-content-area');
         if (contentArea) {
             contentArea.innerHTML = '';
-            appendFileContent(contentArea, fileUrl, mimetype);
+            appendFileContent(contentArea, fileUrl, mimetype, authHeader);
         }
         return;
     }
@@ -184,7 +182,7 @@ function showFileOverlay(fileUrl, mimetype) {
     contentArea.style.overflow = 'auto';
     contentArea.style.position = 'relative';
 
-    appendFileContent(contentArea, fileUrl, mimetype);
+    appendFileContent(contentArea, fileUrl, mimetype, authHeader);
 
 
     // Resize Handle (Grip)
@@ -300,18 +298,22 @@ function showFileOverlay(fileUrl, mimetype) {
     container.appendChild(closeBtn);
     document.body.appendChild(container);
 
-    // Watcher: Schließt Container, wenn LN nicht mehr aktiv ist
-    const observer = new MutationObserver(() => {
-        const lnTabStillActive = document.querySelector('portal-tab-item[aria-label="LN"][aria-selected="true"]');
-        if (!lnTabStillActive && document.getElementById('pdf-container')) {
-            document.getElementById('pdf-container').remove();
-            observer.disconnect(); // Beobachtung beenden
+    // Watcher: Schließt das Overlay automatisch, wenn der LN-Tab verlassen wird
+    const checkTabInterval = setInterval(() => {
+        if (!document.getElementById('pdf-container')) {
+            clearInterval(checkTabInterval);
+            return;
         }
-    });
-    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        const activeTab = document.querySelector('portal-tab-item[aria-label="LN"]');
+        if (activeTab && activeTab.getAttribute('aria-selected') !== 'true') {
+            console.log("Infor Multiview: LN-Tab wurde verlassen, schließe Overlay.");
+            container.remove();
+            clearInterval(checkTabInterval);
+        }
+    }, 1000);
 }
 
-function appendFileContent(parent, fileUrl, mimetype) {
+function appendFileContent(parent, fileUrl, mimetype, authHeader = null) {
     if (mimetype && mimetype.startsWith('image/')) {
         const img = document.createElement('img');
         img.src = fileUrl;
@@ -562,10 +564,34 @@ function appendFileContent(parent, fileUrl, mimetype) {
     } else {
         // Default (PDF)
         const iframe = document.createElement('iframe');
-        iframe.src = fileUrl;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
         parent.appendChild(iframe);
+
+        const absoluteUrl = fileUrl.startsWith('http') ? fileUrl : (window.location.origin + fileUrl);
+        
+        // Hole die PDF über den Background-Worker als Base64, um CORS und X-Frame-Options sicher zu umgehen
+        chrome.runtime.sendMessage({ action: 'fetchBase64', url: absoluteUrl, auth: authHeader }, (response) => {
+            if (response && response.success && response.base64) {
+                try {
+                    const byteCharacters = atob(response.base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: mimetype || 'application/pdf' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    iframe.src = blobUrl;
+                } catch (err) {
+                    console.error("Infor Multiview: Base64 to Blob failed", err);
+                    iframe.src = absoluteUrl;
+                }
+            } else {
+                console.error("Infor Multiview: Background fetch failed", response ? response.error : "Unknown error");
+                iframe.src = absoluteUrl; // Fallback
+            }
+        });
     }
 }
