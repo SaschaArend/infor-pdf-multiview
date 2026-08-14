@@ -86,22 +86,21 @@ function showUpdateBanner(version) {
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
-            <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Update Information:</span>
-            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Für das Update "WIN+R" drücken und <strong>"%USERPROFILE%\\Infor_Multiview_Extension\\update.bat"</strong> einfügen und bestätigen.</span>
-            <button id="open-update-folder-btn" style="
-                margin-left: 15px;
-                padding: 4px 12px;
-                background-color: #005B9F;
-                color: #ffffff;
-                border: none;
+            <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Wichtiges Update (v${version}):</span>
+            <span>1. <strong>[WIN] + [R]</strong> drücken &nbsp;&rarr;&nbsp; 2. <button id="copy-update-cmd" style="
+                margin: 0 4px;
+                padding: 4px 8px;
+                background-color: #f0f0f0;
+                color: #333;
+                border: 1px solid #ccc;
                 border-radius: 4px;
                 cursor: pointer;
                 font-weight: 600;
-                font-size: 12px;
-                transition: background-color 0.2s;
-            " onmouseover="this.style.backgroundColor='#004375'" onmouseout="this.style.backgroundColor='#005B9F'">
-                Update-Ordner öffnen
-            </button>
+                font-size: 11px;
+                transition: all 0.2s;
+            " onmouseover="this.style.backgroundColor='#e4e4e4'" onmouseout="this.style.backgroundColor='#f0f0f0'">
+                📋 Befehl kopieren
+            </button> einfügen &nbsp;&rarr;&nbsp; 3. <strong>Enter</strong> drücken.</span>
         </div>
         <button id="close-update-banner" style="
             background: transparent;
@@ -122,9 +121,21 @@ function showUpdateBanner(version) {
         banner.remove();
     });
 
-    document.getElementById('open-update-folder-btn').addEventListener('click', () => {
-        chrome.runtime.sendMessage({ action: "openExtensionsPage" });
-        banner.remove();
+    document.getElementById('copy-update-cmd').addEventListener('click', (e) => {
+        navigator.clipboard.writeText('"%USERPROFILE%\\Infor_Multiview_Extension\\update.bat"').then(() => {
+            const btn = e.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Kopiert!';
+            btn.style.backgroundColor = '#d4edda';
+            btn.style.borderColor = '#c3e6cb';
+            btn.style.color = '#155724';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.backgroundColor = '#f0f0f0';
+                btn.style.borderColor = '#ccc';
+                btn.style.color = '#333';
+            }, 2000);
+        });
     });
 }
 
