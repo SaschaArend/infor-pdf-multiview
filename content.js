@@ -87,7 +87,7 @@ function showUpdateBanner(version) {
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
             <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Update Information:</span>
-            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Öffne den Update-Ordner, um dort die <strong>update.bat</strong> auszuführen.</span>
+            <span>Eine neue Version der Multiview-Erweiterung (<strong>${version}</strong>) ist verfügbar. Für das Update "WIN+R" drücken und <strong>"%USERPROFILE%\\Infor_Multiview_Extension\\update.bat"</strong> einfügen und bestätigen.</span>
             <button id="open-update-folder-btn" style="
                 margin-left: 15px;
                 padding: 4px 12px;
