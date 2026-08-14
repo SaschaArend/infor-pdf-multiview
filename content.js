@@ -81,26 +81,48 @@ function showUpdateBanner(version) {
 
     banner.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; flex-grow: 1;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#005B9F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#005B9F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
-            <span style="font-weight: 600; margin-right: 6px; color: #005B9F;">Wichtiges Update (v${version}):</span>
-            <span>1. <strong>[WIN] + [R]</strong> drücken &nbsp;&rarr;&nbsp; 2. <button id="copy-update-cmd" style="
-                margin: 0 4px;
-                padding: 4px 8px;
-                background-color: #f0f0f0;
-                color: #333;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: 600;
-                font-size: 11px;
-                transition: all 0.2s;
-            " onmouseover="this.style.backgroundColor='#e4e4e4'" onmouseout="this.style.backgroundColor='#f0f0f0'">
-                📋 Befehl kopieren
-            </button> einfügen &nbsp;&rarr;&nbsp; 3. <strong>Enter</strong> drücken.</span>
+            <span style="font-weight: 600; margin-right: 20px; color: #005B9F; font-size: 14px;">Wichtiges Update (v${version})</span>
+            
+            <div style="display: flex; align-items: center; gap: 14px; background: #f4f6f8; padding: 4px 16px; border-radius: 8px; border: 1px solid #e1e5ea; font-size: 13px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #6c757d; font-weight: bold;">1.</span>
+                    <button id="copy-update-cmd" style="
+                        padding: 4px 10px;
+                        background-color: #ffffff;
+                        color: #005B9F;
+                        border: 1px solid #c5d6e3;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 12px;
+                        transition: all 0.2s;
+                        display: flex;
+                        align-items: center;
+                    " onmouseover="this.style.backgroundColor='#f0f4f8'; this.style.borderColor='#005B9F'" onmouseout="this.style.backgroundColor='#ffffff'; this.style.borderColor='#c5d6e3'">
+                        📋 Befehl kopieren
+                    </button>
+                </div>
+                <span style="color: #ced4da;">|</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #6c757d; font-weight: bold;">2.</span>
+                    <span><strong>WIN+R</strong> drücken</span>
+                </div>
+                <span style="color: #ced4da;">|</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #6c757d; font-weight: bold;">3.</span>
+                    <span>Einfügen <strong>(STRG+V)</strong></span>
+                </div>
+                <span style="color: #ced4da;">|</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: #6c757d; font-weight: bold;">4.</span>
+                    <span><strong>ENTER</strong> drücken</span>
+                </div>
+            </div>
         </div>
         <button id="close-update-banner" style="
             background: transparent;
@@ -131,9 +153,9 @@ function showUpdateBanner(version) {
             btn.style.color = '#155724';
             setTimeout(() => {
                 btn.innerHTML = originalText;
-                btn.style.backgroundColor = '#f0f0f0';
-                btn.style.borderColor = '#ccc';
-                btn.style.color = '#333';
+                btn.style.backgroundColor = '#ffffff';
+                btn.style.borderColor = '#c5d6e3';
+                btn.style.color = '#005B9F';
             }, 2000);
         });
     });
