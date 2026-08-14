@@ -137,6 +137,49 @@ function showUpdateBanner(version) {
             }, 2000);
         });
     });
+
+    // Polling, um zu prüfen, ob die lokale update.bat das Update durchgeführt hat
+    let updatePoll = setInterval(() => {
+        if (document.getElementById('infor-update-banner')) {
+            try {
+                chrome.runtime.sendMessage({ action: "checkLocalUpdateReady" }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        // Die Erweiterung wurde im Hintergrund neu geladen (alte Skripte sind nun "verwaist")
+                        handleUpdateApplied();
+                    } else if (response && response.ready) {
+                        handleUpdateApplied();
+                    }
+                });
+            } catch (e) {
+                handleUpdateApplied();
+            }
+        } else {
+            clearInterval(updatePoll);
+        }
+    }, 2000);
+
+    function handleUpdateApplied() {
+        clearInterval(updatePoll);
+        const banner = document.getElementById('infor-update-banner');
+        if (banner) {
+            banner.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; flex-grow: 1;">
+                    <span style="font-weight: 600; color: #155724; font-size: 14px;">✅ Update erfolgreich installiert!</span>
+                    <span style="margin-left: 10px; color: #155724; font-size: 14px;">Bitte drücke <strong>F5</strong> (Seite neu laden), um die neue Version zu nutzen.</span>
+                </div>
+                <button id="close-update-banner-success" style="background: transparent; border: none; color: #666; cursor: pointer; font-size: 18px; font-weight: bold; padding: 0 8px;">×</button>
+            `;
+            banner.style.backgroundColor = '#d4edda';
+            banner.style.borderBottom = '1px solid #c3e6cb';
+            
+            const closeBtn = document.getElementById('close-update-banner-success');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    banner.remove();
+                });
+            }
+        }
+    }
 }
 
 function showFileOverlay(fileUrl, mimetype, authHeader = null) {

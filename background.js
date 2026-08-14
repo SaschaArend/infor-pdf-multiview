@@ -144,6 +144,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (request.action === "checkLocalUpdateReady") {
+    chrome.storage.local.get(['version'], (result) => {
+       if (result.version) {
+           fetch("manifest.json", { cache: "no-store" })
+             .then(res => res.json())
+             .then(localMan => {
+                 if (localMan.version === result.version) {
+                     chrome.storage.local.set({ updateAvailable: false }, () => {
+                         sendResponse({ ready: true });
+                         setTimeout(() => chrome.runtime.reload(), 500);
+                     });
+                 } else {
+                     sendResponse({ ready: false });
+                 }
+             }).catch(() => {
+                 sendResponse({ ready: false });
+             });
+       } else {
+           sendResponse({ ready: false });
+       }
+    });
+    return true;
+  }
 });
 
 // Initialer Badge Status
