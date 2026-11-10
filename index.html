@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INFOR — PDF Multiview | Native IDM Split-Screen Engine für Infor CloudSuite LN</title>
+  <meta name="description" content="Nahtlose Dokumentenvorschau (PDF, Word, Excel, MSG, EML, Bilder) direkt im Infor LN & Invoice Process. Kompatibel mit Infor IDM v1 & v2 Widgets.">
+  <link rel="icon" type="image/png" href="icons/48.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #070A0F;
+      --bg-surface: #0D121B;
+      --bg-elevated: #131B28;
+      --bg-glass: rgba(13, 18, 27, 0.84);
+      --text-primary: #F3F6FA;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --accent-infor: #0072CE;
+      --accent-cyan: #38BDF8;
+      --accent-emerald: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-rose: #F43F5E;
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(56, 189, 248, 0.35);
+      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 18% 0%, rgba(0, 114, 206, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 85% 12%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* NAVBAR */
+    .navbar-wrap {
+      position: sticky;
+      top: 16px;
+      z-index: 1000;
+      padding: 0 24px;
+      margin-top: 16px;
+    }
+
+    .navbar {
+      max-width: 1232px;
+      margin: 0 auto;
+      height: 60px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-hairline);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.65);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--text-primary);
+      color: var(--bg-canvas);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .nav-cta:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 72px 0 48px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-hairline);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 12px var(--accent-emerald);
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.35rem, 4.6vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      max-width: 940px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(95deg, #38BDF8 0%, #93C5FD 55%, #E2E8F0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 1.35vw, 1.15rem);
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent-infor);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14.5px;
+      padding: 13px 22px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px -6px rgba(0, 114, 206, 0.6);
+      transition: all 0.18s ease;
+    }
+
+    .btn-primary:hover {
+      background: #0082eb;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 14.5px;
+      padding: 13px 22px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hairline);
+      transition: all 0.18s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+      background: var(--bg-elevated);
+    }
+
+    /* INTERACTIVE SPLIT-SCREEN WORKBENCH */
+    .workbench-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      text-align: left;
+      user-select: none;
+    }
+
+    /* Browser Top Chrome */
+    .browser-bar {
+      height: 46px;
+      background: #090D14;
+      border-bottom: 1px solid var(--border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .browser-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #263042;
+    }
+
+    .browser-dots span:nth-child(1) { background: #EF4444; }
+    .browser-dots span:nth-child(2) { background: #F59E0B; }
+    .browser-dots span:nth-child(3) { background: #10B981; }
+
+    .browser-url {
+      flex: 1;
+      max-width: 560px;
+      background: #111723;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .browser-url-lock {
+      color: var(--accent-emerald);
+      margin-right: 6px;
+    }
+
+    .browser-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ext-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #151E2E;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--text-primary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .ext-toggle-btn:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .ext-badge {
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 10px;
+      background: var(--accent-emerald);
+      color: #04130D;
+    }
+
+    .ext-badge.off {
+      background: #555555;
+      color: #FFFFFF;
+    }
+
+    /* Infor CloudSuite Portal Header */
+    .infor-portal-header {
+      height: 38px;
+      background: #182232;
+      border-bottom: 1px solid var(--border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 12px;
+    }
+
+    .infor-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+
+    .infor-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 100%;
+      padding: 0 14px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .infor-tab.active {
+      color: #ffffff;
+      border-bottom-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .interceptor-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Split Screen Stage */
+    .split-stage {
+      position: relative;
+      height: 540px;
+      display: flex;
+      background: #0B1018;
+      overflow: hidden;
+    }
+
+    /* Left: Infor LN Session + IDM Connected Information */
+    .ln-workspace {
+      flex: 1;
+      min-width: 280px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .ln-session-card {
+      background: #111826;
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .ln-session-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .ln-session-title {
+      font-weight: 600;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ln-session-code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .erp-fields-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .erp-field {
+      background: #0B1018;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .erp-field-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .erp-field-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* IDM Widget v2 Selector List */
+    .idm-widget-card {
+      background: #111826;
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .idm-widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .idm-widget-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .idm-mode-tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 114, 206, 0.2);
+      color: #7CC4FA;
+      border: 1px solid rgba(0, 114, 206, 0.4);
+    }
+
+    .idm-doc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .idm-doc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #0B1018;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .idm-doc-item:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: #101929;
+    }
+
+    .idm-doc-item.active {
+      border-color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: inset 3px 0 0 var(--accent-cyan);
+    }
+
+    .idm-doc-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .doc-ext-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 4px;
+      min-width: 42px;
+      text-align: center;
+    }
+
+    .ext-pdf { background: rgba(244, 63, 94, 0.16); color: #FB7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .ext-xlsx { background: rgba(16, 185, 129, 0.16); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .ext-msg { background: rgba(245, 158, 11, 0.16); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .ext-eml { background: rgba(56, 189, 248, 0.16); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .ext-png { background: rgba(168, 85, 247, 0.16); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .idm-doc-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .idm-doc-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Right: Simulated INFOR Multiview Overlay */
+    .multiview-overlay {
+      position: relative;
+      width: 52%;
+      min-width: 260px;
+      max-width: 72%;
+      height: 100%;
+      background: #141C2B;
+      border-left: 1px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -12px 0 32px rgba(0, 0, 0, 0.55);
+      transition: opacity 0.2s ease;
+    }
+
+    .multiview-overlay.hidden {
+      display: none;
+    }
+
+    /* Interactive Resize Handle */
+    .resize-handle {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 10px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.25), transparent);
+    }
+
+    .resize-handle::after {
+      content: "⋮";
+      color: var(--accent-cyan);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .resize-handle:hover {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.55), transparent);
+    }
+
+    .overlay-toolbar {
+      height: 42px;
+      background: #0F1623;
+      border-bottom: 1px solid var(--border-hairline);
+      padding: 0 14px 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .overlay-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .overlay-width-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .overlay-close-btn {
+      background: #EF4444;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .overlay-body {
+      flex: 1;
+      padding: 20px 20px 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Preview Render Templates */
+    .preview-sheet {
+      background: #FFFFFF;
+      color: #0F172A;
+      border-radius: 8px;
+      padding: 24px;
+      flex: 1;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      font-size: 12.5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .invoice-head {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #E2E8F0;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .invoice-table th {
+      text-align: left;
+      padding: 6px 8px;
+      background: #F1F5F9;
+      color: #475569;
+      border-bottom: 1px solid #CBD5E1;
+    }
+
+    .invoice-table td {
+      padding: 8px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .excel-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .excel-grid th {
+      background: #107C41;
+      color: #fff;
+      padding: 6px 8px;
+      border: 1px solid #0B5A2E;
+      text-align: left;
+    }
+
+    .excel-grid td {
+      padding: 6px 8px;
+      border: 1px solid #CBD5E1;
+      color: #1E293B;
+    }
+
+    .msg-header-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 12px;
+    }
+
+    .msg-header-row {
+      display: flex;
+      margin-bottom: 4px;
+    }
+
+    .msg-header-row strong {
+      width: 75px;
+      color: #475569;
+    }
+
+    .workbench-caption {
+      background: #090D14;
+      border-top: 1px solid var(--border-hairline);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* METRICS STRIP */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+      margin: 64px 0;
+      background: rgba(13, 18, 27, 0.5);
+    }
+
+    .metric-cell {
+      padding: 28px 24px;
+      border-right: 1px solid var(--border-hairline);
+    }
+
+    .metric-cell:last-child {
+      border-right: none;
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* SECTION HEADERS */
+    .section {
+      padding: 56px 0;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      max-width: 660px;
+      font-size: 15.5px;
+      margin-bottom: 40px;
+    }
+
+    /* FORMAT MATRIX */
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .format-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .format-card:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .format-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .format-card h3 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .format-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .format-mime {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #080C12;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-hairline);
+      display: block;
+      overflow-x: auto;
+    }
+
+    /* ARCHITECTURE PIPELINE */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .arch-step {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: 12px;
+      padding: 26px;
+      position: relative;
+    }
+
+    .arch-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .arch-step h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .arch-step p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .code-snippet {
+      background: #070A0F;
+      border: 1px solid var(--border-hairline);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #CBD5E1;
+      overflow-x: auto;
+    }
+
+    /* AUTO-UPDATE & INSTALL SECTION */
+    .install-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .terminal-card {
+      background: #080B11;
+      border: 1px solid var(--border-hairline);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-header {
+      background: #0F1520;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .terminal-body {
+      padding: 22px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: #E2E8F0;
+      flex: 1;
+    }
+
+    .cmd-copy-box {
+      margin-top: 16px;
+      background: #111927;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .cmd-copy-btn {
+      background: var(--accent-infor);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border-hairline);
+      padding: 40px 0;
+      margin-top: 64px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .formats-grid, .arch-grid, .install-grid, .metrics-bar {
+        grid-template-columns: 1fr;
+      }
+      .split-stage {
+        flex-direction: column;
+        height: auto;
+      }
+      .multiview-overlay {
+        width: 100% !important;
+        max-width: 100%;
+        height: 420px;
+      }
+      .resize-handle {
+        display: none;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <div class="navbar-wrap">
+    <nav class="navbar">
+      <div class="brand">
+        <img src="icons/48.png" alt="INFOR PDF Multiview Icon">
+        <span>INFOR — PDF Multiview</span>
+        <span class="brand-badge">v2026.8.1</span>
+      </div>
+      <div class="nav-links">
+        <a href="#workbench">Live-Simulator</a>
+        <a href="#formate">Dateiformate</a>
+        <a href="#architektur">v1 &amp; v2 Architektur</a>
+        <a href="#installation">Installation &amp; Auto-Update</a>
+      </div>
+      <a class="nav-cta" href="https://github.com/SaschaArend/infor-pdf-multiview" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        GitHub Repository
+      </a>
+    </nav>
+  </div>
+
+  <!-- Hero -->
+  <header class="hero container">
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      <span>Manifest V3 • Infor CloudSuite LN • IDM v1 &amp; v2 Ready</span>
+    </div>
+    <h1>Dokumente prüfen direkt im <span>Infor LN &amp; Invoice Process.</span></h1>
+    <p class="hero-sub">
+      Schluss mit ständigem Tab-Wechsel und erzwungenen Datei-Downloads: <strong>INFOR — PDF Multiview</strong> öffnet PDFs, Excel-Kalkulationen, Word-Dokumente sowie Outlook-<code>.msg</code> &amp; <code>.eml</code> Belege als stufenlos skalierbares Split-Screen-Overlay direkt neben deiner ERP-Maske.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/SaschaArend/infor-pdf-multiview/archive/refs/heads/main.zip" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Release v2026.8.1 herunterladen (.ZIP)
+      </a>
+      <a href="#installation" class="btn-secondary">
+        Installationsanleitung (Chrome &amp; Edge)
+      </a>
+    </div>
+
+    <!-- INTERACTIVE SPLIT-SCREEN DEMO -->
+    <div id="workbench" class="workbench-wrapper">
+      <div class="browser-bar">
+        <div class="browser-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="browser-url">
+          <span><strong class="browser-url-lock">🔒</strong> https://mingle-portal.eu1.inforcloudsuite.com/v2/TENANT_PRD/eb71a9ef...</span>
+          <span id="demo-stream-endpoint" style="color:#38BDF8;">/api/bc/MDS_99412/resource/stream</span>
+        </div>
+        <div class="browser-actions">
+          <button type="button" id="toggle-ext-btn" class="ext-toggle-btn" title="Klicken zum Ein-/Ausschalten des Overlays">
+            <img src="icons/16.png" alt="" width="14" height="14">
+            <span>Multiview</span>
+            <span id="ext-status-badge" class="ext-badge">ON</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="infor-portal-header">
+        <div class="infor-tabs">
+          <div class="infor-tab active">
+            <span>●</span>
+            <span>LN (Enterprise Resource Planning)</span>
+          </div>
+          <div class="infor-tab">
+            <span>Document Management (IDM)</span>
+          </div>
+        </div>
+        <div class="interceptor-pill">
+          <span id="demo-hook-mode">MAIN-World Hook: SmallPreview/stream → /resource/stream</span>
+        </div>
+      </div>
+
+      <div id="split-stage" class="split-stage">
+        <!-- Left ERP Side -->
+        <div class="ln-workspace">
+          <div class="ln-session-card">
+            <div class="ln-session-head">
+              <div class="ln-session-title">
+                <span>Eingangsrechnungen &amp; Belegprüfung</span>
+              </div>
+              <span class="ln-session-code">Session: tfacp2600m000</span>
+            </div>
+            <div class="erp-fields-grid">
+              <div class="erp-field">
+                <div class="erp-field-label">Lieferant</div>
+                <div class="erp-field-val">BP0004912 • Stahlwerk Süd</div>
+              </div>
+              <div class="erp-field">
+                <div class="erp-field-label">Belegnummer</div>
+                <div class="erp-field-val">ERE-2026-49201</div>
+              </div>
+              <div class="erp-field">
+                <div class="erp-field-label">Betrag (Netto)</div>
+                <div class="erp-field-val" style="color:#34D399;">14.890,00 EUR</div>
+              </div>
+              <div class="erp-field">
+                <div class="erp-field-label">Bestellbezug</div>
+                <div class="erp-field-val">PO-884120 / Pos. 10-40</div>
+              </div>
+              <div class="erp-field">
+                <div class="erp-field-label">Kostenstelle</div>
+                <div class="erp-field-val">KST-4100 (Fertigung)</div>
+              </div>
+              <div class="erp-field">
+                <div class="erp-field-label">Workflow-Status</div>
+                <div class="erp-field-val" style="color:#38BDF8;">Sachliche Prüfung aktiv</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="idm-widget-card">
+            <div class="idm-widget-header">
+              <div class="idm-widget-title">
+                <span>Verbundene Informationen (Infor IDM Widget)</span>
+              </div>
+              <span class="idm-mode-tag">Klicke ein Dokument zum Testen ↓</span>
+            </div>
+
+            <div class="idm-doc-list" id="doc-list">
+              <div class="idm-doc-item active" data-doc="pdf">
+                <div class="idm-doc-left">
+                  <span class="doc-ext-badge ext-pdf">PDF</span>
+                  <div>
+                    <div class="idm-doc-name">Eingangsrechnung_49201.pdf</div>
+                    <div class="idm-doc-meta">PID: MDS_Invoice-99412 • Widget v2 SmallPreview</div>
+                  </div>
+                </div>
+                <span class="idm-doc-meta">50% Breite</span>
+              </div>
+
+              <div class="idm-doc-item" data-doc="xlsx">
+                <div class="idm-doc-left">
+                  <span class="doc-ext-badge ext-xlsx">XLSX</span>
+                  <div>
+                    <div class="idm-doc-name">Frachtkosten_Kalkulation_Q4.xlsx</div>
+                    <div class="idm-doc-meta">Office Online Viewer • Automatisch 30%-45% Split</div>
+                  </div>
+                </div>
+                <span class="idm-doc-meta">Office Viewer</span>
+              </div>
+
+              <div class="idm-doc-item" data-doc="msg">
+                <div class="idm-doc-left">
+                  <span class="doc-ext-badge ext-msg">MSG</span>
+                  <div>
+                    <div class="idm-doc-name">Freigabe_Einkauf_Sonderpreis.msg</div>
+                    <div class="idm-doc-meta">Outlook Binary Parser (msgreader.js) + Direkt-Download</div>
+                  </div>
+                </div>
+                <span class="idm-doc-meta">Outlook MSG</span>
+              </div>
+
+              <div class="idm-doc-item" data-doc="eml">
+                <div class="idm-doc-left">
+                  <span class="doc-ext-badge ext-eml">EML</span>
+                  <div>
+                    <div class="idm-doc-name">Lieferavis_Spedition_881.eml</div>
+                    <div class="idm-doc-meta">RFC822 Header &amp; Body Parser (Kein Download nötig)</div>
+                  </div>
+                </div>
+                <span class="idm-doc-meta">RFC822 E-Mail</span>
+              </div>
+
+              <div class="idm-doc-item" data-doc="png">
+                <div class="idm-doc-left">
+                  <span class="doc-ext-badge ext-png">PNG</span>
+                  <div>
+                    <div class="idm-doc-name">Wareneingang_Pruefprotokoll.png</div>
+                    <div class="idm-doc-meta">Service-Worker Base64 Stream (CSP-Safe)</div>
+                  </div>
+                </div>
+                <span class="idm-doc-meta">Bildvorschau</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right INFOR Multiview Overlay -->
+        <div id="multiview-overlay" class="multiview-overlay">
+          <div id="resize-handle" class="resize-handle" title="Ziehen, um die Breite des Overlays stufenlos anzupassen"></div>
+          <div class="overlay-toolbar">
+            <div class="overlay-toolbar-left">
+              <strong id="overlay-doc-title" style="color:#F3F6FA;">Eingangsrechnung_49201.pdf</strong>
+              <span id="overlay-width-indicator" class="overlay-width-pill">Breite: 52% (Gespeichert)</span>
+            </div>
+            <button type="button" id="overlay-close-btn" class="overlay-close-btn">✕ Schließen</button>
+          </div>
+          <div id="overlay-body" class="overlay-body">
+            <!-- Dynamically rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="workbench-caption">
+        <span>💡 <strong>Interaktive Vorschau:</strong> Ziehe den blauen Trennbalken in der Mitte nach links/rechts oder wechsle links zwischen PDF, Excel, MSG und EML.</span>
+        <span>Persistenz: <code>localStorage.getItem('pdfWidth')</code></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Key Metrics -->
+  <div class="container">
+    <div class="metrics-bar">
+      <div class="metric-cell">
+        <div class="metric-val">v1 &amp; v2</div>
+        <div class="metric-label">Volle Kompatibilität mit Infor Search &amp; Connected Information</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-val">12+ MIME</div>
+        <div class="metric-label">PDF, DOCX, XLSX, Outlook MSG, EML &amp; Bildformate nativ</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-val">CSP-Safe</div>
+        <div class="metric-label">Service-Worker Base64-Proxy umgeht strikte CloudSuite-Blockaden</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-val">1-Click</div>
+        <div class="metric-label">Integrierter GitHub Versions-Check &amp; WIN+R Auto-Updater</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supported Formats -->
+  <section id="formate" class="section container">
+    <span class="section-tag">Multi-Format Engine</span>
+    <h2 class="section-title">Jeder Belegtyp. Direkt im selben Fenster.</h2>
+    <p class="section-desc">
+      Im Einkaufs- und Rechnungsprüfungsprozess landen nicht nur PDFs im IDM. <strong>INFOR — PDF Multiview</strong> erkennt den MIME-Type oder die Dateiendung automatisch und wählt den optimalen Renderer.
+    </p>
+
+    <div class="formats-grid">
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge ext-pdf">PDF</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Standard: 50% Split</span>
+        </div>
+        <h3>Native PDF-Stream-Vorschau</h3>
+        <p>Lädt das Dokument über den Service-Worker inklusive Infor Bearer-Auth-Header als <code>data:application/pdf;base64</code> direkt in den integrierten Browser-PDF-Viewer (inkl. Zoom, Drucken &amp; Drehen).</p>
+        <code class="format-mime">application/pdf</code>
+      </div>
+
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge ext-xlsx">DOCX / XLSX</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Standard: 30% Split</span>
+        </div>
+        <h3>Word &amp; Excel Online-Viewer</h3>
+        <p>Rendert Kalkulationstabellen und Spezifikationen verzögerungsfrei über den eingebetteten Microsoft Office Online Viewer, ohne dass lokal Office gestartet werden muss.</p>
+        <code class="format-mime">application/vnd.openxmlformats-officedocument.*</code>
+      </div>
+
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge ext-msg">MSG</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">DataStream + msgreader</span>
+        </div>
+        <h3>Outlook .MSG Binär-Parser</h3>
+        <p>Liest binäre Outlook-Nachrichten lokal im Browser aus: Zeigt Betreff, Absender, Empfänger, Zeitstempel und Nachrichteninhalt strukturiert an – ergänzt um einen Direkt-Download-Button.</p>
+        <code class="format-mime">application/vnd.ms-outlook</code>
+      </div>
+
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge ext-eml">EML</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">RFC822 Engine</span>
+        </div>
+        <h3>E-Mail (.EML) Volltext-Dekodierung</h3>
+        <p>Dekodiert <code>Subject</code>, <code>From</code>, <code>To</code> sowie Base64- oder Quoted-Printable-kodierte Text- und HTML-Bodies direkt im Side-Panel.</p>
+        <code class="format-mime">message/rfc822</code>
+      </div>
+
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge ext-png">PNG / JPG / SVG</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">High-Contrast Canvas</span>
+        </div>
+        <h3>Zentrierte Bild- &amp; Scan-Ansicht</h3>
+        <p>Fotodokumentationen aus dem Wareneingang, Qualitätsprüfungen oder gescannte Lieferscheine werden verlustfrei skaliert im Overlay dargestellt.</p>
+        <code class="format-mime">image/png • image/jpeg • image/webp • image/svg+xml</code>
+      </div>
+
+      <div class="format-card">
+        <div class="format-card-top">
+          <span class="doc-ext-badge" style="background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.3);">UX</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Smart Context</span>
+        </div>
+        <h3>Intelligente LN-Tab-Erkennung</h3>
+        <p>Das Overlay zeichnet sich ausschließlich im Top-Window und prüft aktiv <code>portal-tab-item[aria-label="LN"]</code>, damit andere Infor-Module niemals überdeckt werden.</p>
+        <code class="format-mime">localStorage.setItem('pdfWidth', newWidth)</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Section -->
+  <section id="architektur" class="section container">
+    <span class="section-tag">Unter der Haube</span>
+    <h2 class="section-title">Entwickelt für Infor IDM v1 &amp; v2 Security-Richtlinien.</h2>
+    <p class="section-desc">
+      Mit dem Wechsel auf Infor CloudSuite v2 Widgets (Connected Information) feuert das IDM keinen klassischen <code>/search</code>-Request mehr und blockiert fremde iFrames per strikter Content-Security-Policy (CSP). So löst die Erweiterung das Problem:
+    </p>
+
+    <div class="arch-grid">
+      <div class="arch-step">
+        <span class="arch-num">01 • MAIN WORLD HOOK</span>
+        <h3>XHR &amp; Fetch Interception</h3>
+        <p><code>intercept.js</code> wird per Manifest V3 direkt bei <code>document_start</code> in die <code>MAIN</code>-World aller Frames injiziert und erkennt sowohl klassische v1 <code>/api/bc/search</code>-Payloads als auch v2 <code>SmallPreview/stream</code>-Aufrufe.</p>
+        <pre class="code-snippet">const streamUrl = url.split('?')[0]
+  .replace('/SmallPreview/stream', '/stream');
+window.top.postMessage({
+  type: 'INFOR_MULTIVIEW_PDF_URL',
+  url: streamUrl, auth: authHeader
+}, '*');</pre>
+      </div>
+
+      <div class="arch-step">
+        <span class="arch-num">02 • SERVICE WORKER PROXY</span>
+        <h3>CSP- &amp; Auth-Header-Tunnel</h3>
+        <p>Damit Chrome das PDF nicht wegen fehlender Session-Cookies oder <code>X-Frame-Options</code> ablehnt, lädt <code>background.js</code> den Stream samt abgegriffenem <code>Authorization</code>-Header im Hintergrund und wandelt ihn in Base64 um.</p>
+        <pre class="code-snippet">const fetchOpts = { credentials: 'include' };
+if (request.auth) {
+  fetchOpts.headers = { Authorization: request.auth };
+}
+const buffer = await fetch(url, fetchOpts)
+  .then(r => r.arrayBuffer());</pre>
+      </div>
+
+      <div class="arch-step">
+        <span class="arch-num">03 • TOP-WINDOW RENDERER</span>
+        <h3>iFrame-übergreifendes Overlay</h3>
+        <p>Egal wie tief das IDM-Widget in verschachtelten CloudSuite-iFrames sitzt: Das Dokumenten-Panel wird sauber im <code>window.top</code> gerendert und merkt sich die individuell gezogene Breite dauerhaft.</p>
+        <pre class="code-snippet">if (window !== window.top) return;
+const lnTab = document.querySelector(
+  'portal-tab-item[aria-label="LN"]'
+);
+if (lnTab?.getAttribute('aria-selected') !== 'true')
+  return;</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation & Auto-Update -->
+  <section id="installation" class="section container">
+    <span class="section-tag">Rollout &amp; Wartung</span>
+    <h2 class="section-title">In 60 Sekunden einsatzbereit. Updates per 1-Klick.</h2>
+    <p class="section-desc">
+      Die Erweiterung prüft beim Browserstart automatisch das GitHub-Manifest auf neue Versionen und blendet bei Bedarf ein dezentes Update-Banner direkt in Infor ein.
+    </p>
+
+    <div class="install-grid">
+      <div class="terminal-card">
+        <div class="terminal-header">
+          <span>update.bat — Automatischer Update-Workflow</span>
+          <span style="color:var(--accent-emerald);">● GitHub Sync aktiv</span>
+        </div>
+        <div class="terminal-body">
+          <div style="color:var(--text-muted);"># 1. Erstinstallation im Benutzerprofil ablegen:</div>
+          <div><span style="color:#38BDF8;">Pfad:</span> <code>%USERPROFILE%\Infor_Multiview_Extension</code></div>
+          <br>
+          <div style="color:var(--text-muted);"># 2. In Chrome oder Edge als entpackte Erweiterung laden:</div>
+          <div><code>chrome://extensions</code> bzw. <code>edge://extensions</code> → <strong>Entwicklermodus AN</strong> → <strong>Entpackte Erweiterung laden</strong></div>
+          <br>
+          <div style="color:var(--text-muted);"># 3. Bei neuen Releases direkt über WIN + R aktualisieren:</div>
+          <div class="cmd-copy-box">
+            <code id="winr-cmd" style="color:#34D399;">"%USERPROFILE%\Infor_Multiview_Extension\update.bat"</code>
+            <button type="button" id="copy-cmd-btn" class="cmd-copy-btn">Befehl kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="format-card" style="display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <span class="section-tag" style="margin-bottom:6px;">Toolbar Steuerung</span>
+          <h3 style="font-size:20px;margin-bottom:12px;">Schnelles Ein- &amp; Ausschalten per Browser-Icon</h3>
+          <p>Du arbeitest gerade auf einem kleinen Laptop-Bildschirm und möchtest kurzzeitig die volle Breite für eine große LN-Tabelle nutzen?</p>
+          <p>Ein einziger Klick auf das <strong>INFOR — PDF Multiview</strong> Icon in der Browser-Leiste schaltet das Overlay sofort auf <code>OFF</code> (und schließt offene Vorschauen automatisch). Ein weiterer Klick aktiviert es wieder.</p>
+        </div>
+        <div style="background:#080C12;border:1px solid var(--border-hairline);border-radius:10px;padding:16px;font-family:var(--font-mono);font-size:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="color:var(--text-muted);">Status Aktiv:</span>
+            <span style="color:var(--accent-emerald);font-weight:600;">Icon normal • Overlay öffnet automatisch</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Status Deaktiviert:</span>
+            <span style="color:#94A3B8;font-weight:600;">Badge [OFF] • Kein Eingriff in Infor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="icons/16.png" alt="" width="16" height="16">
+        <span><strong>INFOR — PDF Multiview</strong> • Entwickelt von Sascha Arend</span>
+      </div>
+      <div style="display:flex;gap:20px;">
+        <a href="https://github.com/SaschaArend/infor-pdf-multiview" target="_blank" rel="noopener">GitHub Repository</a>
+        <a href="https://github.com/SaschaArend/infor-pdf-multiview/issues" target="_blank" rel="noopener">Issue melden</a>
+        <a href="manifest.json" target="_blank" rel="noopener">manifest.json (v2026.8.1)</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Workbench Script -->
+  <script>
+    (function () {
+      const DOCS = {
+        pdf: {
+          title: 'Eingangsrechnung_49201.pdf',
+          endpoint: '/api/bc/MDS_99412/resource/stream',
+          hook: 'MAIN-World Hook: SmallPreview/stream → /resource/stream (application/pdf)',
+          defaultWidth: 52,
+          render: () => `
+            <div class="preview-sheet">
+              <div>
+                <div class="invoice-head">
+                  <div>
+                    <div style="font-weight:800;font-size:16px;color:#005B9F;">STAHLWERK SÜD GMBH</div>
+                    <div style="font-size:11px;color:#64748B;">Industriestraße 44 • 70565 Stuttgart</div>
+                  </div>
+                  <div style="text-align:right;font-family:var(--font-mono);font-size:11px;">
+                    <div><strong>RECHNUNG:</strong> ERE-2026-49201</div>
+                    <div><strong>DATUM:</strong> 10.11.2026</div>
+                    <div><strong>KREDITOR:</strong> BP0004912</div>
+                  </div>
+                </div>
+                <table class="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>Pos</th>
+                      <th>Artikel / Beschreibung</th>
+                      <th>Menge</th>
+                      <th>Einzelpreis</th>
+                      <th>Gesamt</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>10</td>
+                      <td>Präzisionsbandstahl C45E (Charge #881)</td>
+                      <td>4.200 kg</td>
+                      <td>2,45 €</td>
+                      <td>10.290,00 €</td>
+                    </tr>
+                    <tr>
+                      <td>20</td>
+                      <td>Wärmebehandlung &amp; Werksprüfzeugnis 3.1</td>
+                      <td>1 Psch</td>
+                      <td>3.850,00 €</td>
+                      <td>3.850,00 €</td>
+                    </tr>
+                    <tr>
+                      <td>30</td>
+                      <td>Speditionsvorlauf / Mautzuschlag</td>
+                      <td>1 Psch</td>
+                      <td>750,00 €</td>
+                      <td>750,00 €</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #0F172A;padding-top:12px;font-family:var(--font-mono);">
+                <span style="font-size:11px;color:#475569;">Infor IDM PID: MDS_Invoice-99412 • Geprüft via PDF Multiview</span>
+                <span style="font-size:14px;font-weight:700;color:#0F172A;">Netto: 14.890,00 EUR</span>
+              </div>
+            </div>
+          `
+        },
+        xlsx: {
+          title: 'Frachtkosten_Kalkulation_Q4.xlsx',
+          endpoint: 'https://view.officeapps.live.com/op/embed.aspx?src=...',
+          hook: 'Office Online Renderer: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          defaultWidth: 46,
+          render: () => `
+            <div class="preview-sheet" style="padding:16px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#107C41;color:#fff;padding:8px 12px;border-radius:6px 6px 0 0;font-size:12px;font-weight:600;">
+                  <span>📊 Microsoft Office Online Viewer — Frachtkosten_Kalkulation_Q4.xlsx</span>
+                  <span style="font-family:var(--font-mono);font-size:11px;">Blatt1</span>
+                </div>
+                <table class="excel-grid">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>A • Kostenart</th>
+                      <th>B • Schlüssel</th>
+                      <th>C • Planwert</th>
+                      <th>D • Ist-Rechnung</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>1</td><td>Hauptlauf LKW 24t</td><td>FR-100</td><td>580,00 €</td><td>580,00 €</td></tr>
+                    <tr><td>2</td><td>CO2-Mautaufschlag</td><td>FR-205</td><td>110,00 €</td><td>110,00 €</td></tr>
+                    <tr><td>3</td><td>Entladezeit Kran</td><td>FR-310</td><td>60,00 €</td><td>60,00 €</td></tr>
+                    <tr style="background:#ECFDF5;font-weight:700;"><td>4</td><td>SUMME FRACHT (Pos 30)</td><td>=SUM(D1:D3)</td><td>750,00 €</td><td>750,00 €</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:#64748B;margin-top:12px;">
+                ✓ Automatische Office-Erkennung in content.js • Direkt im Side-Panel eingebettet
+              </div>
+            </div>
+          `
+        },
+        msg: {
+          title: 'Freigabe_Einkauf_Sonderpreis.msg',
+          endpoint: 'background.js → fetchArrayBuffer → MSGReader',
+          hook: 'Local Binary Parser: lib/DataStream.js + lib/msgreader.js (application/vnd.ms-outlook)',
+          defaultWidth: 50,
+          render: () => `
+            <div class="preview-sheet">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <span style="font-weight:700;font-size:15px;color:#0F172A;">AW: Sonderfreigabe Wärmebehandlung Charge #881</span>
+                  <span style="background:#0078D4;color:#fff;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;">📥 .msg herunterladen</span>
+                </div>
+                <div class="msg-header-box">
+                  <div class="msg-header-row"><strong>Von:</strong> <span>Markus Weber (Leitung Einkauf) &lt;m.weber@unternehmen.de&gt;</span></div>
+                  <div class="msg-header-row"><strong>An:</strong> <span>Kreditorenbuchhaltung &lt;rechnungspruefung@unternehmen.de&gt;</span></div>
+                  <div class="msg-header-row"><strong>Datum:</strong> <span>09.11.2026, 14:22 Uhr</span></div>
+                </div>
+                <div style="line-height:1.65;color:#1E293B;font-size:12.5px;">
+                  Hallo zusammen,<br><br>
+                  die Position 20 (Wärmebehandlung &amp; Werksprüfzeugnis 3.1 über <strong>3.850,00 EUR</strong>) auf der Rechnung <code>ERE-2026-49201</code> wurde vorab mit dem Werkleiter abgestimmt und ist hiermit sachlich freigegeben.<br><br>
+                  Rechnung kann auf Kostenstelle <strong>KST-4100</strong> gebucht werden.<br><br>
+                  Beste Grüße<br>
+                  Markus Weber
+                </div>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:#64748B;border-top:1px solid #E2E8F0;padding-top:10px;">
+                Geparst mit integriertem MSGReader • Keine externe Server-Übertragung
+              </div>
+            </div>
+          `
+        },
+        eml: {
+          title: 'Lieferavis_Spedition_881.eml',
+          endpoint: 'background.js → fetchText → parseEmlAndDisplay()',
+          hook: 'RFC822 Native Parser: message/rfc822 (Subject / From / To / Body)',
+          defaultWidth: 50,
+          render: () => `
+            <div class="preview-sheet">
+              <div>
+                <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:12px;">Lieferavis zur Bestellung PO-884120 (Anlieferung Tor 4)</div>
+                <div class="msg-header-box">
+                  <div class="msg-header-row"><strong>Von:</strong> <span>disposition@sped-sued.de</span></div>
+                  <div class="msg-header-row"><strong>An:</strong> <span>wareneingang@unternehmen.de</span></div>
+                </div>
+                <div style="font-family:var(--font-mono);font-size:12px;color:#1E293B;background:#F8FAFC;padding:12px;border-radius:6px;border:1px solid #E2E8F0;">
+                  SENDUNGS-ID: SP-9920144<br>
+                  GEWICHT:     4.200 kg (2 Coils)<br>
+                  EMPFANG:     Quittiert am 08.11.2026 um 07:45 Uhr<br>
+                  LIEFERSCHEIN: LS-2026-881 (ohne Beanstandung)
+                </div>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:#64748B;border-top:1px solid #E2E8F0;padding-top:10px;">
+                RFC822 Text-Dekodierung direkt im Content-Script
+              </div>
+            </div>
+          `
+        },
+        png: {
+          title: 'Wareneingang_Pruefprotokoll.png',
+          endpoint: 'background.js → fetchBase64 (image/png)',
+          hook: 'Image Stream Renderer: Zentrierte Skalierung (max-width: 100%, max-height: 100%)',
+          defaultWidth: 50,
+          render: () => `
+            <div class="preview-sheet" style="background:#0F172A;color:#F8FAFC;align-items:center;justify-content:center;text-align:center;">
+              <div style="border:2px dashed #38BDF8;border-radius:10px;padding:28px;max-width:420px;">
+                <div style="font-family:var(--font-mono);font-size:11px;color:#38BDF8;margin-bottom:8px;">[IMAGE/PNG STREAM • 1920×1080]</div>
+                <div style="font-size:16px;font-weight:700;margin-bottom:6px;">Foto-Dokumentation Coil-Anlieferung #881</div>
+                <p style="font-size:12px;color:#94A3B8;margin-bottom:14px;">Etikettenscan &amp; Oberflächenprüfung im Wareneingang bestanden (Prüfer: K. Hartmann).</p>
+                <span style="display:inline-block;background:rgba(16,185,129,0.2);color:#34D399;border:1px solid rgba(16,185,129,0.4);padding:4px 10px;border-radius:999px;font-family:var(--font-mono);font-size:11px;">✓ QS-Freigabe erteilt</span>
+              </div>
+            </div>
+          `
+        }
+      };
+
+      const overlay = document.getElementById('multiview-overlay');
+      const overlayBody = document.getElementById('overlay-body');
+      const overlayTitle = document.getElementById('overlay-doc-title');
+      const widthIndicator = document.getElementById('overlay-width-indicator');
+      const streamEndpoint = document.getElementById('demo-stream-endpoint');
+      const hookMode = document.getElementById('demo-hook-mode');
+      const toggleExtBtn = document.getElementById('toggle-ext-btn');
+      const extBadge = document.getElementById('ext-status-badge');
+      const closeBtn = document.getElementById('overlay-close-btn');
+      const resizeHandle = document.getElementById('resize-handle');
+      const splitStage = document.getElementById('split-stage');
+
+      let isEnabled = true;
+
+      function loadDoc(key) {
+        const doc = DOCS[key];
+        if (!doc) return;
+        document.querySelectorAll('.idm-doc-item').forEach(el => {
+          el.classList.toggle('active', el.getAttribute('data-doc') === key);
+        });
+        overlayTitle.textContent = doc.title;
+        streamEndpoint.textContent = doc.endpoint;
+        hookMode.textContent = doc.hook;
+        overlayBody.innerHTML = doc.render();
+        if (isEnabled) {
+          overlay.classList.remove('hidden');
+        }
+      }
+
+      document.querySelectorAll('.idm-doc-item').forEach(item => {
+        item.addEventListener('click', () => {
+          loadDoc(item.getAttribute('data-doc'));
+        });
+      });
+
+      toggleExtBtn.addEventListener('click', () => {
+        isEnabled = !isEnabled;
+        if (isEnabled) {
+          extBadge.textContent = 'ON';
+          extBadge.classList.remove('off');
+          overlay.classList.remove('hidden');
+        } else {
+          extBadge.textContent = 'OFF';
+          extBadge.classList.add('off');
+          overlay.classList.add('hidden');
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
+        overlay.classList.add('hidden');
+      });
+
+      // Drag Resize Simulation
+      let dragging = false;
+      resizeHandle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        dragging = true;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const rect = splitStage.getBoundingClientRect();
+        const rightEdge = rect.right - e.clientX;
+        let pct = Math.round((rightEdge / rect.width) * 100);
+        if (pct < 28) pct = 28;
+        if (pct > 70) pct = 70;
+        overlay.style.width = pct + '%';
+        widthIndicator.textContent = 'Breite: ' + pct + '% (Gespeichert)';
+      });
+
+      window.addEventListener('mouseup', () => {
+        dragging = false;
+      });
+
+      // Copy WIN+R Command
+      const copyBtn = document.getElementById('copy-cmd-btn');
+      const winrCmd = document.getElementById('winr-cmd');
+      if (copyBtn && winrCmd) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(winrCmd.textContent).then(() => {
+            const orig = copyBtn.textContent;
+            copyBtn.textContent = '✓ Kopiert!';
+            copyBtn.style.background = '#10B981';
+            setTimeout(() => {
+              copyBtn.textContent = orig;
+              copyBtn.style.background = '';
+            }, 2000);
+          });
+        });
+      }
+
+      // Initial render
+      loadDoc('pdf');
+    })();
+  </script>
+</body>
+</html>
