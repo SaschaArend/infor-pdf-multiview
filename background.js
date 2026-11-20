@@ -1,9 +1,21 @@
 // Die alte Rate-Limited Stream Interception wurde entfernt.
 // Die Extension greift nun den Such Request in content.js via intercept.js ab.
 
+function setupContextMenu() {
+  if (!chrome.contextMenus) return;
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "open-zugferd-checker",
+      title: "ZUGFeRD / E-Rechnung prüfen",
+      contexts: ["action"]
+    });
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Infor Multiview Extension installiert/aktualisiert.");
   checkForUpdate();
+  setupContextMenu();
 
   // Setze den initialen Status auf an (isEnabled: true)
   chrome.storage.local.get(['isEnabled'], (result) => {
@@ -15,7 +27,16 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
   checkForUpdate();
+  setupContextMenu();
 });
+
+if (chrome.contextMenus && chrome.contextMenus.onClicked) {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "open-zugferd-checker" && tab && tab.id) {
+      chrome.tabs.sendMessage(tab.id, { type: "OPEN_ZUGFERD_CHECKER" }).catch(() => {});
+    }
+  });
+}
 
 async function checkForUpdate() {
   const GITHUB_MANIFEST_URL = "https://raw.githubusercontent.com/SaschaArend/infor-pdf-multiview/main/manifest.json";
@@ -71,7 +92,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === "fetchText" && request.url) {
-    fetch(request.url)
+    const fetchOpts = { credentials: 'include' };
+    if (request.auth) fetchOpts.headers = { 'Authorization': request.auth };
+
+    fetch(request.url, fetchOpts)
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.text();
@@ -85,7 +109,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === "fetchArrayBuffer" && request.url) {
-    fetch(request.url)
+    const fetchOpts = { credentials: 'include' };
+    if (request.auth) fetchOpts.headers = { 'Authorization': request.auth };
+
+    fetch(request.url, fetchOpts)
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.arrayBuffer();
@@ -109,9 +136,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetch(request.url, fetchOpts)
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.arrayBuffer();
+        const contentType = response.headers.get('content-type') || '';
+        return response.arrayBuffer().then(buffer => ({ buffer, contentType }));
       })
-      .then(buffer => {
+      .then(({ buffer, contentType }) => {
         // ArrayBuffer zu Base64 konvertieren im Service Worker
         let binary = '';
         const bytes = new Uint8Array(buffer);
@@ -120,7 +148,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             binary += String.fromCharCode(bytes[i]);
         }
         const base64 = btoa(binary);
-        sendResponse({ success: true, base64: base64 });
+        sendResponse({ success: true, base64: base64, contentType: contentType });
       })
       .catch(error => {
         console.error("Background fetch base64 error:", error);
