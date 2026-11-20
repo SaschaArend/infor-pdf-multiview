@@ -6,9 +6,10 @@
 
 **Native Split-Screen Dokumentenvorschau & EN 16931 E-Rechnungs-Suite (ZUGFeRD / Factur-X / XRechnung) für Infor LN CloudSuite & IDM (v1 & v2)**
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![Version](https://img.shields.io/badge/Release-v2026.8.1-0072CE?style=for-the-badge)](https://github.com/SaschaArend/infor-pdf-multiview)
-[![E-Rechnung](https://img.shields.io/badge/EN_16931-ZUGFeRD_%26_XRechnung-10B981?style=for-the-badge)](#-neu-integrierte-e-rechnungs--zugferd-suite-en-16931)
-[![Infor IDM](https://img.shields.io/badge/Infor_IDM-v1_%26_v2_Widgets-38BDF8?style=for-the-badge)](#️-technische-architektur-v1--v2)
+[![E-Rechnung](https://img.shields.io/badge/EN_16931-ZUGFeRD_%26_XRechnung-10B981?style=for-the-badge)](#neu-integrierte-e-rechnungs--zugferd-suite-en-16931)
+[![Infor IDM](https://img.shields.io/badge/Infor_IDM-v1_%26_v2_Widgets-38BDF8?style=for-the-badge)](#technische-architektur-v1--v2)
 [![Live Demo](https://img.shields.io/badge/GitHub_Pages-Live_Landingpage-F59E0B?style=for-the-badge)](https://saschaarend.github.io/infor-pdf-multiview/)
 
 <p align="center">
@@ -19,15 +20,11 @@
 
 </div>
 
----
-
 ## ⚡ Warum INFOR — PDF Multiview?
 
 Bei der Rechnungsprüfung (`tfacp2600m000`), im Einkauf oder in der Auftragsbearbeitung in **Infor LN CloudSuite** müssen angehängte Belege aus **IDM (Connected Information / Related Information)** ständig gegengeprüft werden. Standardmäßig erzwingt das System oft unübersichtliche Mini-Vorschauen oder externe Datei-Downloads – und reine XML-Rechnungen (**XRechnung / ZUGFeRD**) sind ohne Zusatzsoftware kaum lesbar.
 
 **INFOR — PDF Multiview** klinkt sich nahtlos in die Infor CloudSuite ein und öffnet ausgewählte IDM-Dokumente automatisch als **stufenlos verstellbares Split-Screen-Overlay** am rechten Bildschirmrand – inklusive vollautomatischer **E-Rechnungs-Aufbereitung und EN 16931 Validierung**.
-
----
 
 ## 🧾 NEU: Integrierte E-Rechnungs- & ZUGFeRD-Suite (EN 16931)
 
@@ -53,8 +50,6 @@ Du möchtest eine externe PDF- oder XML-Rechnung prüfen, die noch gar nicht in 
 * Klicke mit der **rechten Maustaste** auf das **INFOR — PDF Multiview** Icon oben in der Browserleiste und wähle **„ZUGFeRD / E-Rechnung prüfen"**.
 * Ziehe eine beliebige `.pdf`- oder `.xml`-Datei per Drag & Drop in das Prüffenster – das Tool extrahiert die Daten sofort lokal im Browser.
 
----
-
 ## 🧩 Alle unterstützten Dateiformate (Multi-Format Engine)
 
 | Format | Dateiendungen | MIME-Type / Signatur | Vorschau-Engine im Overlay | Standard-Breite |
@@ -67,8 +62,6 @@ Du möchtest eine externe PDF- oder XML-Rechnung prüfen, die noch gar nicht in 
 | **Standard E-Mail** | `.eml` | `message/rfc822` | Multipart- & Quoted-Printable-Parser (Betreff, Von, An, Datum & Text) | `50%` |
 | **Bilder & Scans** | `.png`, `.jpg`, `.gif`, `.webp`, `.svg` | `image/*` | Zentrierte, verlustfrei skalierte Vollbild-Vorschau | `50%` |
 
----
-
 ## 🛠️ Weitere Komfort-Funktionen im Alltag
 
 * **Kompatibel mit Infor v1 & v2 Widgets:** Unterstützt sowohl die klassische IDM-Suche (`/api/bc/search`) als auch die neuen **Infor v2 Connected Information Widgets** (`SmallPreview/stream`).
@@ -77,7 +70,12 @@ Du möchtest eine externe PDF- oder XML-Rechnung prüfen, die noch gar nicht in 
 * **Drag & Drop Größenanpassung:** Ziehe das Overlay am linken Griff stufenlos auf deine Wunschbreite (`localStorage.pdfWidth`).
 * **1-Klick Toolbar-Schalter (`ON` / `OFF`):** Ein Linksklick auf das Erweiterungs-Icon deaktiviert das Overlay sofort (`OFF`-Badge) und schließt offene Fenster.
 
----
+## 🔒 Datenschutz & Sicherheit (Privacy by Design)
+
+* **100% Lokale Ausführung (Local-First):** Die Analyse von PDFs, XML-Dateien, E-Mails und E-Rechnungen erfolgt **ausschließlich lokal im Arbeitsspeicher deines Browsers**. Es werden keinerlei Dokumenteninhalte, Rechnungsdaten oder Metadaten an externe Server gesendet.
+* **Keine Telemetrie / Kein Tracking:** Die Erweiterung enthält keine Analysedienste, Werbenetzwerke oder Tracking-Pixel.
+* **Berechtigungen:** Die angeforderten Browser-Berechtigungen dienen ausschließlich dem Abfangen der Infor-eigenen Dokumenten-Streams im aktiven Tab zur Anzeige im Split-Screen.
+* **Versionsprüfung:** Lediglich beim Start des Browsers wird die Versionsnummer der `manifest.json` mit GitHub abgeglichen, um optionale Update-Hinweise anzuzeigen.
 
 ## 🏗️ Technische Architektur (v1 & v2)
 
@@ -106,8 +104,6 @@ Du möchtest eine externe PDF- oder XML-Rechnung prüfen, die noch gar nicht in 
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
----
-
 ## 🚀 Installation in 60 Sekunden
 
 ### Schritt 1 — Setup ausführen (`update.bat`)
@@ -131,7 +127,11 @@ Sobald in Infor das Update-Banner erscheint (oder du manuell aktualisieren möch
 "%USERPROFILE%\Infor_Multiview_Extension\update.bat"
 ```
 
----
+## ⚖️ Rechtliche Hinweise, Haftungsausschluss & Lizenz
+
+* **Lizenz:** Veröffentlicht unter der [MIT License](LICENSE).
+* **Markenhinweis:** *Infor*, *Infor LN*, *Infor CloudSuite* und *Infor Document Management (IDM)* sind eingetragene Marken der Infor Inc. bzw. deren Tochtergesellschaften. Dieses Projekt ist eine unabhängige Open-Source-Entwicklung und steht in **keiner geschäftlichen Verbindung, Kooperation oder Billigung durch die Infor Inc.**
+* **Haftungsausschluss für Prüfregeln:** Die integrierte EN 16931- und BR-DE-Validierung dient der schnellen Sichtprüfung im Arbeitsalltag. Sie ersetzt **keine formelle steuerrechtliche Prüfung** oder behördlich zertifizierte Prüfsoftware im Sinne der GoBD. Es wird keine Gewähr für die Vollständigkeit oder mathematische Korrektheit übernommen.
 
 <div align="center">
   <sub>Entwickelt für maximale Geschwindigkeit im Infor LN & IDM Tagesgeschäft • <strong>Sascha Arend</strong></sub>
